@@ -33,3 +33,9 @@ void Enemy::Release()
 {
 }
 
+
+
+void Enemy::OnCollision(GameObject* other)
+{
+	this->KillMe(); // “–‚½‚Á‚½‚çÁ‚¦‚é
+}
