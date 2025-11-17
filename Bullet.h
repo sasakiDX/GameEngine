@@ -2,11 +2,11 @@
 #include "Engine/GameObject.h"
 #include "Engine/Model.h"
 
-class Player : public GameObject
+class Bullet : public GameObject
 {
 public:
-    Player(GameObject* parent);
-    ~Player();
+    Bullet(GameObject* parent);
+    ~Bullet();
 
     void Initialize() override;
     void Update() override;
@@ -15,4 +15,6 @@ public:
 
 private:
     int hModel_;
+    float speed_;
+    float lifeTime_;
 };
