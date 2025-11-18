@@ -1,6 +1,7 @@
-#include "Enemy.h"
+﻿#include "Enemy.h"
 #include "Engine/Model.h"
 #include "Engine/SphereCollider.h"
+#include "Engine/GameObject.h"
 
 Enemy::Enemy(GameObject* parent)
     : GameObject(parent, "Enemy"),
@@ -20,11 +21,16 @@ void Enemy::Initialize()
 
     SphereCollider* col = new SphereCollider(0.5f);
     AddCollider(col);
+
+    float x = (rand() % 200 - 100) * 0.05f; // -5 〜 +5 の範囲
+    float y = (rand() % 200 - 100) * 0.05f; // -5 〜 +5 の範囲
+
+    transform_.position_ = { x, y, 20.0f };
 }
 
 void Enemy::Update()
 {
-    transform_.position_.z += speed_;
+    transform_.position_.z -= speed_;
 }
 
 void Enemy::Draw()
@@ -37,7 +43,10 @@ void Enemy::Release()
 {
 }
 
-void Enemy::OnCollision(GameObject* other)
+void Enemy::onCollision(GameObject* other)
 {
-    KillMe();
+    if (other->GetName() == "Bullet")
+    {
+        KillMe();
+    }
 }

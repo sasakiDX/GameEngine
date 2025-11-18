@@ -24,8 +24,8 @@ void Player::Update()
 
     if (Input::IsKey(DIK_LEFT))  transform_.position_.x -= speed;
     if (Input::IsKey(DIK_RIGHT)) transform_.position_.x += speed;
-    if (Input::IsKey(DIK_UP))    transform_.position_.z -= speed;
-    if (Input::IsKey(DIK_DOWN))  transform_.position_.z += speed;
+    if (Input::IsKey(DIK_UP))    transform_.position_.y += speed;
+    if (Input::IsKey(DIK_DOWN))  transform_.position_.y -= speed;
 
     if (Input::IsKeyDown(DIK_SPACE))
     {

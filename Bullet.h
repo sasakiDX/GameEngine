@@ -12,6 +12,7 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
+    void onCollision(GameObject* other) override;
 
 private:
     int hModel_;

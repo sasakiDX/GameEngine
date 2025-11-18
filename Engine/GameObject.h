@@ -12,6 +12,9 @@ class SphereCollider;
 class GameObject
 {
 public:
+	const std::string& GetName() const { return objectName_; }
+
+
 	GameObject();
 	GameObject(GameObject* parent, const string& name);
 	virtual ~GameObject();
@@ -33,14 +36,17 @@ public:
 	void Collision(); // （再帰衝突処理用）
 
 	// 衝突時に呼ばれる（派生クラスでオーバーライド）
-	virtual void OnCollision(GameObject* other) {}
+	virtual void onCollision(GameObject* other) {}
 
 	// 位置関連
 	void SetPosition(DirectX::XMFLOAT3 position);
 	void SetPosition(float x, float y, float z);
 
 	// オブジェクト破棄
-	void KillMe();
+	void KillMe()
+	{
+		isDead_ = true;
+	}
 
 	// 階層構造関連
 	GameObject* GetRootJob();
@@ -69,4 +75,5 @@ protected:
 
 private:
 	bool isDead_; // 削除フラグ
+	
 };

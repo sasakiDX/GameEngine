@@ -12,9 +12,11 @@ public:
     void Draw() override;
     void Release() override;
 
-    void OnCollision(GameObject* other) override;
+    void onCollision(GameObject* other) override;
+
 
 private:
     int hModel_;
     float speed_;
+
 };

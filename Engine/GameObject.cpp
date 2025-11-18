@@ -77,11 +77,6 @@ void GameObject::SetPosition(float x, float y, float z)
 	transform_.position_ = { x,y,z };
 }
 
-void GameObject::KillMe()
-{
-	isDead_ = true;
-}
-
 GameObject* GameObject::GetRootJob()
 {
 	if (pParent_ == nullptr)
@@ -148,8 +143,8 @@ void GameObject::Collision(GameObject* pTarget)
 	{
 		//なんかする
 		/*MessageBoxA(NULL, "本当にぶつかったの？", "当たったかどうか", MB_OK);*/
-		this->OnCollision(pTarget);
-		pTarget->OnCollision(this);
+		this->onCollision(pTarget);
+		pTarget->onCollision(this);
 	}
 
 

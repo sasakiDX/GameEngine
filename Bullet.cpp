@@ -1,4 +1,5 @@
 #include "Bullet.h"
+#include "Engine/SphereCollider.h"
 
 Bullet::Bullet(GameObject* parent)
     : GameObject(parent, "Bullet"), hModel_(-1),
@@ -14,6 +15,8 @@ void Bullet::Initialize()
 {
     hModel_ = Model::Load("oden.fbx");
     transform_.scale_ = { 0.2f, 0.2f, 0.2f };
+
+    AddCollider(new SphereCollider(0.5f));
 }
 
 void Bullet::Update()
@@ -36,4 +39,9 @@ void Bullet::Draw()
 
 void Bullet::Release()
 {
+}
+
+void Bullet::onCollision(GameObject* other)
+{
+    KillMe();
 }
