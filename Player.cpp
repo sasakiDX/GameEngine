@@ -27,7 +27,7 @@ void Player::Update()
     if (Input::IsKey(DIK_UP))    transform_.position_.y += speed;
     if (Input::IsKey(DIK_DOWN))  transform_.position_.y -= speed;
 
-    if (Input::IsKeyDown(DIK_SPACE))
+    if (Input::IsKey(DIK_SPACE))
     {
         GameObject* root = GetRootJob();
         GameObject* bullet = root->Instantiate<Bullet>(root);

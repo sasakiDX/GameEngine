@@ -2,9 +2,10 @@
 #include "Player.h"
 #include "Enemy.h"
 #include <ctime>
+#include "SceneManager.h"
 
 PlayScene::PlayScene(GameObject* parent)
-	:GameObject(parent, "PlayScene")
+    :GameObject(parent, "PlayScene"), requestClear_(false)
 {
 }
 
@@ -12,15 +13,9 @@ PlayScene::~PlayScene()
 {
 }
 
-
-
 void PlayScene::Initialize()
 {
-
     Instantiate<Player>(this);
-
-
-
 
     static bool seeded = false;
     if (!seeded) {
@@ -28,16 +23,12 @@ void PlayScene::Initialize()
         std::srand((unsigned)std::time(nullptr));
     }
 
-    // エネミーを複数（例：10体）生成
     for (int i = 0; i < 10; i++)
     {
         GameObject* e = Instantiate<Enemy>(this);
 
-        // ランダムなX,Yに散らす
-        float x = (std::rand() % 200 - 100) * 0.05f;  // -5 ～ +5
-        float y = (std::rand() % 200 - 100) * 0.05f;  // -5 ～ +5
-
-        // Z は画面奥に固定（例: 30）
+        float x = (std::rand() % 200 - 100) * 0.05f;
+        float y = (std::rand() % 200 - 100) * 0.05f;
         float z = 30.0f;
 
         e->SetPosition({ x, y, z });
@@ -46,10 +37,36 @@ void PlayScene::Initialize()
 
 void PlayScene::Update()
 {
+    // childList_ を直接ループせず、スナップショットを取る（安全）
+    std::vector<GameObject*> snapshot;
+    snapshot.reserve(childList_.size());
+    for (auto c : childList_) snapshot.push_back(c);
+
+    int enemyCount = 0;
+    for (auto child : snapshot)
+    {
+        if (child == nullptr) continue;
+        if (dynamic_cast<Enemy*>(child) != nullptr) ++enemyCount;
+    }
+
+    if (enemyCount == 0)
+    {
+        requestClear_ = true;
+    }
 }
 
 void PlayScene::Draw()
 {
+    if (requestClear_)
+    {
+        GameObject* obj = FindObject("SceneManager");
+        if (obj)
+        {
+            SceneManager* sm = static_cast<SceneManager*>(obj);
+            sm->ChangeScene(SCENE_ID_CLEAR);
+        }
+        requestClear_ = false;
+    }
 }
 
 void PlayScene::Release()

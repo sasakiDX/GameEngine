@@ -152,21 +152,23 @@ void GameObject::Collision(GameObject* pTarget)
 
 void GameObject::RoundRobin(GameObject* pTarget)
 {
-	//自分にコライダーがなかったらreturn
-	if (pCollider_ == nullptr)
+	if (this->isDead_) return;
+	if (pCollider_ == nullptr) return;
+	if (pTarget == nullptr || pTarget->isDead_) return;
+
+	if (pTarget->pCollider_ != nullptr && pTarget->pCollider_ != pCollider_)
 	{
-		return;
+		Collision(pTarget);
 	}
 
-
-	//自分とターゲット自体のコライダーの当たり判定
-	if (pTarget->pCollider_ != nullptr && pTarget->pCollider_ != pCollider_)
-		Collision(pTarget);
-
-
-	//再帰的な奴でターゲットの子オブジェクトを当たり判定にしていく
-	for (auto itr : pTarget->childList_)
+	// 子は安全な通常イテレータで処理する
+	for (auto it = pTarget->childList_.begin(); it != pTarget->childList_.end(); ++it)
 	{
-		RoundRobin(itr);
+		GameObject* child = *it;
+
+		if (child && !child->isDead_)
+		{
+			RoundRobin(child);
+		}
 	}
 }
