@@ -14,12 +14,10 @@ TitleScene::~TitleScene()
 
 void TitleScene::Initialize()
 {
-    // 必要ならモデルやテキストの初期化をここに
 }
 
 void TitleScene::Update()
 {
-    // SPACEでプレイシーンへ
     if (Input::IsKeyDown(DIK_SPACE))
     {
         auto* sm = static_cast<SceneManager*>(FindObject("SceneManager"));
@@ -30,7 +28,6 @@ void TitleScene::Update()
 
 void TitleScene::Draw()
 {
-    // タイトル描画（とりあえず空でOK）
 }
 
 void TitleScene::Release()

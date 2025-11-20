@@ -16,7 +16,7 @@ void Bullet::Initialize()
     hModel_ = Model::Load("oden.fbx");
     transform_.scale_ = { 0.2f, 0.2f, 0.2f };
 
-    AddCollider(new SphereCollider(10.5f));
+    AddCollider(new SphereCollider(1.0f));
 }
 
 void Bullet::Update()

@@ -22,8 +22,8 @@ void Enemy::Initialize()
     SphereCollider* col = new SphereCollider(0.5f);
     AddCollider(col);
 
-    float x = (rand() % 200 - 100) * 0.05f; // -5 〜 +5 の範囲
-    float y = (rand() % 200 - 100) * 0.05f; // -5 〜 +5 の範囲
+    float x = (rand() % 200 - 100) * 0.05f;
+    float y = (rand() % 200 - 100) * 0.05f;
 
     transform_.position_ = { x, y, 20.0f };
 }
