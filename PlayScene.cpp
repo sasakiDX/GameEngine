@@ -37,26 +37,20 @@ void PlayScene::Initialize()
 
 void PlayScene::Update()
 {
-    std::vector<GameObject*> snapshot;
-    snapshot.reserve(childList_.size());
-    for (auto c : childList_) snapshot.push_back(c);
-
-    int enemyCount = 0;
-    for (auto child : snapshot)
+    if (!requestClear_)
     {
-        if (child == nullptr) continue;
-        if (dynamic_cast<Enemy*>(child) != nullptr) ++enemyCount;
-    }
+        int enemyCount = 0;
+        for (auto c : childList_)
+        {
+            if (dynamic_cast<Enemy*>(c)) ++enemyCount;
+        }
 
-    if (enemyCount == 0)
-    {
-        requestClear_ = true;
+        if (enemyCount == 0)
+        {
+            requestClear_ = true;
+        }
     }
-}
-
-void PlayScene::Draw()
-{
-    if (requestClear_)
+    else
     {
         GameObject* obj = FindObject("SceneManager");
         if (obj)
@@ -64,9 +58,13 @@ void PlayScene::Draw()
             SceneManager* sm = static_cast<SceneManager*>(obj);
             sm->ChangeScene(SCENE_ID_CLEAR);
         }
-        requestClear_ = false;
     }
 }
+
+void PlayScene::Draw()
+{
+}
+
 
 void PlayScene::Release()
 {

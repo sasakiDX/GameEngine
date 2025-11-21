@@ -1,6 +1,8 @@
 ﻿#include "GameObject.h"
 #include "SphereCollider.h"
 #include <Windows.h>
+#include <vector>
+#include <functional>
 
 GameObject::GameObject()
 	:pParent_(nullptr)
@@ -32,6 +34,16 @@ void GameObject::DrawSub()
 
 void GameObject::UpdateSub()
 {
+
+	transform_.Calculation();
+	this->Update();
+
+	if (pParent_ == nullptr)
+	{
+		// ルートだけ衝突処理
+		CheckAllCollision();
+	}
+
 	transform_.Calculation();
 	this->Update();
 
@@ -169,6 +181,52 @@ void GameObject::RoundRobin(GameObject* pTarget)
 		if (child && !child->isDead_)
 		{
 			RoundRobin(child);
+		}
+	}
+}
+
+
+
+void GameObject::CheckAllCollision()
+{
+	// 全オブジェクトを取得
+	std::vector<GameObject*> all;
+	std::function<void(GameObject*)> gather = [&](GameObject* obj)
+		{
+			all.push_back(obj);
+			for (auto c : obj->childList_) gather(c);
+		};
+	gather(GetRootJob());
+
+	// 全組み合わせで衝突チェック
+	for (int i = 0; i < all.size(); i++)
+	{
+		for (int j = i + 1; j < all.size(); j++)
+		{
+			GameObject* a = all[i];
+			GameObject* b = all[j];
+
+			if (!a->pCollider_ || !b->pCollider_) continue;
+			if (a->isDead_ || b->isDead_) continue;
+
+			// 判定
+			float ar = a->pCollider_->GetRadius();
+			float br = b->pCollider_->GetRadius();
+			float thr = (ar + br) * (ar + br);
+
+			auto pa = a->transform_.position_;
+			auto pb = b->transform_.position_;
+
+			float dist =
+				(pa.x - pb.x) * (pa.x - pb.x) +
+				(pa.y - pb.y) * (pa.y - pb.y) +
+				(pa.z - pb.z) * (pa.z - pb.z);
+
+			if (dist <= thr)
+			{
+				a->onCollision(b);
+				b->onCollision(a);
+			}
 		}
 	}
 }

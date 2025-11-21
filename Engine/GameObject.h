@@ -14,6 +14,7 @@ class GameObject
 public:
 	const std::string& GetName() const { return objectName_; }
 
+	void CheckAllCollision();
 
 	GameObject();
 	GameObject(GameObject* parent, const string& name);
