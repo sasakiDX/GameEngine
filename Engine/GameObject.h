@@ -33,7 +33,6 @@ public:
 
 	// 衝突判定
 	void Collision(GameObject* pTarget);
-	void RoundRobin(GameObject* pTarget);
 	void Collision(); // （再帰衝突処理用）
 
 	// 衝突時に呼ばれる（派生クラスでオーバーライド）

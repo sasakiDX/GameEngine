@@ -34,38 +34,33 @@ void GameObject::DrawSub()
 
 void GameObject::UpdateSub()
 {
-
 	transform_.Calculation();
 	this->Update();
 
 	if (pParent_ == nullptr)
 	{
-		// ルートだけ衝突処理
 		CheckAllCollision();
 	}
 
-	transform_.Calculation();
-	this->Update();
-
-	RoundRobin(GetRootJob());
 	for (auto child : childList_)
 	{
 		child->UpdateSub();
 	}
+
 	for (auto it = childList_.begin(); it != childList_.end(); )
 	{
 		if ((*it)->isDead_)
 		{
 			(*it)->ReleaseSub();
 			delete (*it);
-			it = childList_.erase(it); // ← eraseの戻り値を必ず使う
+			it = childList_.erase(it);
 		}
-		else
-		{
+		else {
 			++it;
 		}
 	}
 }
+
 
 void GameObject::ReleaseSub()
 {
@@ -162,54 +157,39 @@ void GameObject::Collision(GameObject* pTarget)
 
 }
 
-void GameObject::RoundRobin(GameObject* pTarget)
-{
-	if (this->isDead_) return;
-	if (pCollider_ == nullptr) return;
-	if (pTarget == nullptr || pTarget->isDead_) return;
-
-	if (pTarget->pCollider_ != nullptr && pTarget->pCollider_ != pCollider_)
-	{
-		Collision(pTarget);
-	}
-
-	// 子は安全な通常イテレータで処理する
-	for (auto it = pTarget->childList_.begin(); it != pTarget->childList_.end(); ++it)
-	{
-		GameObject* child = *it;
-
-		if (child && !child->isDead_)
-		{
-			RoundRobin(child);
-		}
-	}
-}
-
-
 
 void GameObject::CheckAllCollision()
 {
-	// 全オブジェクトを取得
 	std::vector<GameObject*> all;
-	std::function<void(GameObject*)> gather = [&](GameObject* obj)
+	all.reserve(256);
+	std::function<void(GameObject*)> gather = [&](GameObject* node)
 		{
-			all.push_back(obj);
-			for (auto c : obj->childList_) gather(c);
+			if (!node) return;
+			all.push_back(node);
+			for (auto child : node->childList_)
+			{
+				gather(child);
+			}
 		};
+
 	gather(GetRootJob());
 
-	// 全組み合わせで衝突チェック
-	for (int i = 0; i < all.size(); i++)
+	const size_t n = all.size();
+	for (size_t i = 0; i < n; ++i)
 	{
-		for (int j = i + 1; j < all.size(); j++)
+		GameObject* a = all[i];
+		if (!a) continue;
+
+		if (!a->pCollider_) continue;
+		if (a->isDead_) continue;
+
+		for (size_t j = i + 1; j < n; ++j)
 		{
-			GameObject* a = all[i];
 			GameObject* b = all[j];
+			if (!b) continue;
+			if (!b->pCollider_) continue;
+			if (b->isDead_) continue;
 
-			if (!a->pCollider_ || !b->pCollider_) continue;
-			if (a->isDead_ || b->isDead_) continue;
-
-			// 判定
 			float ar = a->pCollider_->GetRadius();
 			float br = b->pCollider_->GetRadius();
 			float thr = (ar + br) * (ar + br);
@@ -217,12 +197,12 @@ void GameObject::CheckAllCollision()
 			auto pa = a->transform_.position_;
 			auto pb = b->transform_.position_;
 
-			float dist =
-				(pa.x - pb.x) * (pa.x - pb.x) +
-				(pa.y - pb.y) * (pa.y - pb.y) +
-				(pa.z - pb.z) * (pa.z - pb.z);
+			float dx = pa.x - pb.x;
+			float dy = pa.y - pb.y;
+			float dz = pa.z - pb.z;
+			float dist2 = dx * dx + dy * dy + dz * dz;
 
-			if (dist <= thr)
+			if (dist2 <= thr)
 			{
 				a->onCollision(b);
 				b->onCollision(a);

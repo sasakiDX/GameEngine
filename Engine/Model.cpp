@@ -1,67 +1,74 @@
 #include "Model.h"
 #include "Direct3D.h"
+#include <cassert>
 
 namespace Model
 {
-    std::vector<ModelData*> modelList;
+	static std::vector<ModelData*> modelList;
 }
-
 
 int Model::Load(std::string fileName)
 {
-	ModelData* pModelData = new ModelData;
-	pModelData->filename_ = fileName;
-	pModelData->pfbx_ = nullptr;
-
-	for (auto& itr : modelList)
+	for (size_t i = 0; i < modelList.size(); ++i)
 	{
-		if (itr->filename_ == fileName)
+		if (modelList[i] && modelList[i]->filename_ == fileName)
 		{
-			pModelData->pfbx_ = itr->pfbx_;
-			break;
+			modelList[i]->refCount++;
+			return static_cast<int>(i);
 		}
 	}
 
-	if (pModelData->pfbx_ == nullptr)
-	{
-		pModelData->pfbx_ = new Fbx;
-		pModelData->pfbx_->Load(fileName.c_str());
-	}
+	ModelData* pModelData = new ModelData;
+	pModelData->filename_ = fileName;
+	pModelData->pfbx_ = new Fbx;
+	pModelData->pfbx_->Load(fileName.c_str());
+	pModelData->transform_ = Transform();
+	pModelData->refCount = 1;
+
 	modelList.push_back(pModelData);
-	return((int)(modelList.size() - 1));
-	
+	return static_cast<int>(modelList.size() - 1);
 }
 
 void Model::SetTransform(int hModel, Transform transform)
 {
-	modelList[hModel]->transform_ = transform;
+	if (hModel < 0 || hModel >= static_cast<int>(modelList.size())) return;
+	ModelData* md = modelList[hModel];
+	if (!md) return;
+	md->transform_ = transform;
 }
 
 void Model::Draw(int hModel)
 {
-	modelList[hModel]->pfbx_
-	                 ->Draw(modelList[hModel]->transform_);
+	if (hModel < 0 || hModel >= static_cast<int>(modelList.size())) return;
+	ModelData* md = modelList[hModel];
+	if (!md) return;
+	if (!md->pfbx_) return;
+	md->pfbx_->Draw(md->transform_);
+}
+
+void Model::ReleaseHandle(int hModel)
+{
+	if (hModel < 0 || hModel >= static_cast<int>(modelList.size())) return;
+	ModelData* md = modelList[hModel];
+	if (!md) return;
+	md->refCount--;
+	if (md->refCount <= 0)
+	{
+		SAFE_DELETE(md->pfbx_);
+		SAFE_DELETE(md);
+		modelList[hModel] = nullptr;
+	}
 }
 
 void Model::Release()
 {
-	bool isReffered = false;//参照されているか
-	for (int i=0;i<modelList.size();i++)
+	for (size_t i = 0; i < modelList.size(); ++i)
 	{
-		isReffered = false;
-		for(int j = i + 1;j < modelList.size();j++)
-		{
-			if (modelList[i]->pfbx_ == modelList[j]->pfbx_)
-			{
-				isReffered = true;
-				break;
-			}
-		}
-		if (isReffered == false)
+		if (modelList[i])
 		{
 			SAFE_DELETE(modelList[i]->pfbx_);
+			SAFE_DELETE(modelList[i]);
 		}
-		SAFE_DELETE(modelList[i]);
 	}
-	modelList.clear();//配列を空にする（念のため）
+	modelList.clear();
 }

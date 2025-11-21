@@ -45,7 +45,7 @@ void Enemy::Release()
 
 void Enemy::onCollision(GameObject* other)
 {
-    if (other->GetName() == "Bullet")
+    if (other && other->GetName() == "Bullet")
     {
         KillMe();
     }

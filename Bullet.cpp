@@ -43,5 +43,9 @@ void Bullet::Release()
 
 void Bullet::onCollision(GameObject* other)
 {
-    KillMe();
+    if (other == nullptr) return;
+    if (other->GetName() == "Enemy")
+    {
+        KillMe();
+    }
 }
