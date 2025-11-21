@@ -37,7 +37,6 @@ void PlayScene::Initialize()
 
 void PlayScene::Update()
 {
-    // childList_ を直接ループせず、スナップショットを取る（安全）
     std::vector<GameObject*> snapshot;
     snapshot.reserve(childList_.size());
     for (auto c : childList_) snapshot.push_back(c);
